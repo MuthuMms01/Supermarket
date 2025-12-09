@@ -1,0 +1,60 @@
+/* Full screen background */
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #d8baf8, #f5b194);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.login-box {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px 50px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.login-box:hover {
+  transform: translateY(-10px);
+}
+
+/* Inputs */
+.login-box input {
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.login-box input:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 10px rgba(37,117,252,0.3);
+}
+
+/* Button */
+.login-box button {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #2575fc;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  background: #6a11cb;
+  transform: scale(1.05);
+}

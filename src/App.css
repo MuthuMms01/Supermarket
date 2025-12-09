@@ -1,0 +1,17 @@
+.page {
+  padding: 105px;
+  min-height: 180vh;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #69b1de, #f68fd7);
+  color: #0b0208;
+  transition: 0.3s;
+}
+.pi{
+  background: linear-gradient(135deg, #032945, #b04bff);
+}
+.page12 {
+  width:"100PX";
+    transition: 0.3s;
+    
+    margin-top: -25px;
+}

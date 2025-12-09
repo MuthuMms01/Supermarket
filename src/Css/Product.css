@@ -1,0 +1,59 @@
+.update-btn {
+  background: #ffa200 !important;
+}
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  text-align:center;
+  overflow: hidden;
+  font-size: 15px;
+}
+
+.staff-table th {
+  background-color: #4a90e2;
+  color: white;
+  padding: 12px;
+}
+
+.staff-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.staff-table tr:hover {
+  background-color: #f1f1f1;
+}
+.edit-btn:hover { background: #d49d00; }
+.delete-btn:hover { background: #0c648a; }
+.delete1 {
+ background: #67064a;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 5px;
+  
+}
+.product-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.delete2 {
+ background: #036c2f;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 5px; 
+}
+.delete2:hover { background: #0c648a; }
+.edit2 {
+ background: #600244;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 5px; 
+}

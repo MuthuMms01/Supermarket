@@ -1,0 +1,77 @@
+
+
+.input-field, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.add-btn, .save-btn, .delete-btn, .view-btn, .pdf-btn {
+  background: #4b7bec;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.add-btn:hover, .save-btn:hover, .view-btn:hover, .pdf-btn:hover {
+  background: #3867d6;
+}
+
+.delete-btn {
+  background: #630214;
+}
+.delete-btn:hover {
+  background: #cf2a45;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.table th {
+  background: #4458a7;
+  padding: 10px;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  width: 600px;
+  padding: 25px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.save1-btn {
+  padding: 10px 15px;
+  background: #016123;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 20px;
+}
