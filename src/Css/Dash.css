@@ -1,0 +1,65 @@
+.employees-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.employees-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.employees-table th,
+.employees-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.employees-table th {
+  background: #f6f7f9;
+}
+
+.icon-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.icon-btn.delete {
+  color: red;
+}
+
+.pagination {
+  margin-top: 15px;
+  color: #555;
+}
+.A1{
+  background-color: rgb(15, 96, 143);
+  font-size: 10;
+}
+.fab-btn {
+   background-color: rgb(125, 3, 3);
+}
+.actions1 {
+  justify-content: flex-end;
+  text-Align: "right";
+  margin-right:100px;
+ 
+}

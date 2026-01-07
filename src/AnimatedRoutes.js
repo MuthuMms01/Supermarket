@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, {  useRef  } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Product from "./Components/Product";
@@ -6,22 +6,13 @@ import Sale from "./Components/Sale";
 import Stock from "./Components/Stock";
 import Dashboard from "./Components/Dashboard";
 import Logout from "./Components/Logout";
+import LoginPage from "./Components/Loginpage";
 import StaffCreate from "./Components/StaffCreate";
 import StaffUpdate from "./Components/StaffUpdate";
 import SaleDetails from "./Components/SaleDetails";
-
-const Page = ({ title }) => (
-  <div className="page-content">
-    <h1>{title}</h1>
-    <p>Welcome to the {title} page!</p>
-  </div>
-);
-
 const AnimatedRoutes = () => {
   const location = useLocation();
-
-  // Create a ref for CSSTransition
-  const nodeRef = createRef();
+  const nodeRef = useRef(null);
 
   return (
     <TransitionGroup component={null}>
@@ -29,11 +20,14 @@ const AnimatedRoutes = () => {
         key={location.pathname}
         classNames="fade"
         timeout={400}
-        nodeRef={nodeRef} // Use nodeRef
+        nodeRef={nodeRef}
+        unmountOnExit
       >
-        <div ref={nodeRef}>
+        <div ref={nodeRef} className="route-wrapper">
           <Routes location={location}>
-            <Route path="/product" element={<Product />} />
+             <Route path="/" element={<LoginPage />} /> 
+             <Route path="/product" element={<Product />} />
+             <Route path="/logout" element={<Logout />} />
             <Route path="/sale" element={<Sale />} />
             <Route path="/saledetails" element={<SaleDetails />} />
             <Route path="/stock" element={<Stock />} />

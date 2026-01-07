@@ -17,7 +17,7 @@ export default function Login() {
      }
     try 
     {
-      const response = await fetch("https://localhost:7234/api/staff/login", {
+      const response = await fetch("http://localhost:1514/api/staff/login", {
         method: "POST",
         headers: {"Content-Type": "application/json",},
         body: JSON.stringify({ staffid, password}),

@@ -52,3 +52,30 @@
   border-radius: 6px;
   margin-right: 5px;
 }
+.modal1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content1 {
+  width: 850px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.modal-content1 input,
+.modal-content1 select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dfdfdf;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}

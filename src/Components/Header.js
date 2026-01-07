@@ -23,7 +23,7 @@ class Header extends Component {
   <img
     src={
       user?.imagepath
-        ? `https://localhost:7234${user.imagepath}`
+        ? `http://localhost:1514${user.imagepath}`
         : "https://i.pravatar.cc/40?u=" + user?.staffid
     }
     alt="user"

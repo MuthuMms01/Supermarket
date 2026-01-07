@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import axios from "axios";
 import "../Css/Stock.css";
+import CenteredAlert  from "./StylishAlertManager";
+import ConfirmModal from "./ConfirmModal";
+import Button from '@mui/material/Button';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Pagination from "@mui/material/Pagination";
 
 class Stock extends Component {
   constructor(props) {
@@ -11,41 +17,48 @@ class Stock extends Component {
       newProductID: "",newQuantity: "",newAddedBy: "",
       filterText: "",
       currentPage: 1,itemsPerPage: 10,
+       show: false,
+      message: "",
+      onConfirm: null,
+      onCancel: null,
       editItem: null
     };
-    this.stockApi = "https://localhost:7234/api/Sales/Stock";
-    this.productApi = "https://localhost:7234/api/Sales/Product";
-    this.staffApi = "https://localhost:7234/api/staff/Role";
+    this.alertRef = React.createRef();
+     this.confirmRef = React.createRef();
   }
-
+open = (message, onConfirm, onCancel) => {
+    this.setState({ show: true, message, onConfirm, onCancel });
+  };
   componentDidMount() {
     this.loadStock();
     this.loadStaffs();
     this.loadProducts();
   }
-
+handlePageChange = (event, value) => {
+  this.setState({ currentPage: value });
+};
   loadStock = () => {
-    axios.get(this.stockApi).then((res) => {
-      const stocksArray = Array.isArray(res.data.$values) ? res.data.$values : [];
-      this.setState({ stock: stocksArray });
-    })
-    .catch((err) => console.error(err));
+    axios.get("http://localhost:1514/api/Sales/Stock")
+    .then(res => {
+        this.setState({ stock: res.data });
+      })
+      .catch(err => console.error(err));
   };
 
   loadProducts = () => {
-  axios.get(this.productApi)
-    .then((res) => {
-      const productsArray = Array.isArray(res.data.$values) ? res.data.$values : [];
-      this.setState({ products: productsArray });
-    })
-    .catch((err) => console.error(err));
+    axios.get("http://localhost:1514/api/Sales/Product")
+      .then(res => {
+        this.setState({ products: res.data });
+      })
+      .catch(err => console.error(err));
   };
+
   loadStaffs = () => {
-    axios.get(this.staffApi).then((res) => {
-     const staffsArray = Array.isArray(res.data.$values) ? res.data.$values : [];
-      this.setState({ staffs: staffsArray });
-    })
-    .catch((err) => console.error(err));
+  axios.get("http://localhost:1514/api/staff/Role")
+       .then(res => {
+        this.setState({ staffs: res.data });
+      })
+      .catch(err => console.error(err));
   };
 
   handleAddStock = () => {
@@ -54,56 +67,102 @@ class Stock extends Component {
       quantity: this.state.newQuantity,
       addedBy: this.state.newAddedBy
     };
-    axios.post(this.stockApi, data).then(() => {
-      alert("Stock Added successfully");
+    axios.post("http://localhost:1514/api/Sales/Stock", data)
+    .then((response) => {
+      this.alertRef.current.showAlert(response.data.message, "success");
       this.setState({showAddForm: false, newProductID: "",newQuantity: "", newAddedBy: ""});    
       this.loadStock();
-    });
-  };
+    })
+    .catch((error) => {
+    });  
+      this.setState({ showAddForm: false });
+    };
+  
 
   handleEditStock = () => {
     const id = this.state.editItem.stockID;
-    axios.put(`${this.stockApi}?id=${id}`, this.state.editItem).then(() => {
-       alert("Stock details are Updated successfully");
+    axios.put(`http://localhost:1514/api/Sales/Stock?id=${id}`, this.state.editItem).then(() => {
+      this.alertRef.current.showAlert("Stock details are Updated successfully", "success");
       this.setState({ showEditForm: false, editItem: null });
       this.loadStock();
     });
   };
 
   deleteStock = (id) => {
-    if (!window.confirm("Are you sure you want to delete this stock?")) return;
-    axios.delete(`${this.stockApi}?id=${id}`).then(() => {
-      alert("Stock deleted successfully");
-      this.loadStock();
+  // Open stylish confirm modal instead of window.confirm
+  this.confirmRef.current.open("Are you sure you want to delete this stock?",() => {
+      // This function runs if user clicks "Yes"
+      axios
+        .delete(`http://localhost:1514/api/Sales/Stock?id=${id}`)
+        .then(() => {
+          // Show modern alert
+          this.alertRef.current.showAlert(
+            "Stock deleted successfully",
+            "success"
+          );
+          // Reload stock list
+          this.loadStock();
+        })
+        .catch(() => {
+          this.alertRef.current.showAlert(
+            "Failed to delete stock",
+            "error"
+          );
+        });
+    },
+    () => {
+      // Optional: user clicked "No"
+      console.log("Delete cancelled");
+    }
+  );
+};
+handleConfirm = () => {
+    this.setState({ show: false }, () => {
+      if (this.state.onConfirm) this.state.onConfirm();
     });
   };
 
+  handleCancel = () => {
+    this.setState({ show: false }, () => {
+      if (this.state.onCancel) this.state.onCancel();
+    });
+  };
   render() {
-   const { stock, products, staffs, showAddForm, showEditForm, editItem, filterText, currentPage,itemsPerPage } = this.state;
+   const {show, message,stock, products, staffs, showAddForm, showEditForm, editItem, filterText, currentPage,itemsPerPage } = this.state;
      //filter section
    const filteredStock = stock.filter((s) => {
     const filter = filterText.toLowerCase();
     const productName = s.productName ? s.productName.toLowerCase() : "";
     return productName.includes(filter) || s.productID.toString().includes(filter);
+   if (!show) return null;
   });
   // Pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentStocks = filteredStock.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredStock.length / itemsPerPage);
 
     return (
-        <div style={{ width: "87%", margin: "auto", marginTop: "40px",marginLeft:"140px" }}>
+      
+        <div style={{ width: "65%", margin: "auto", marginTop: "40px",marginLeft:"300px" }}>
+          
         <div style={{ marginTop: 20, padding: 20, border: "4px solid #ccc", borderRadius: 10 }}>
           <h2 className="title">Stock Management</h2>   
-        <div className="actions">
-          <input type="text"placeholder="Filter by Product Name or ID"value={this.state.filterText}
-           onChange={(e) => this.setState({ filterText: e.target.value })}/>
-          <button className="edit1-btn" onClick={() => this.setState({ showAddForm: true })}>AddStock</button>
-        </div>
-      
+        <CenteredAlert ref={this.alertRef} />
+        <ConfirmModal ref={ this.confirmRef}/>
+ <table >
+         <tr>
+          <td align="right" style={{ whiteSpace: "nowrap" }}>
+           <input type="text" placeholder="Filter by Product Name or ID" value={filterText}
+            onChange={(e) =>this.setState({ filterText: e.target.value, currentPage: 1 })}style={{width:"20px", marginRight: "232px" }}/>
+            <Button variant="contained"size="small"color="secondary" onClick={() => this.setState({ showAddForm: true })}>Add Stock</Button>
+          </td>
+         </tr>
+       </table>          
         <table className='staff-table'>
           <thead className='staff-table td'>
            <tr className='staff-table th' style={{ textAlign: "center" }} >
+            <th>S.No</th>
               <th>StockId</th>
               <th>ProductId</th>
               <th>ProdcutName</th>
@@ -114,42 +173,28 @@ class Stock extends Component {
           </thead>
          <tbody style={{ textAlign: "center" }}>
               {currentStocks.map((s, index) => (    
-              <tr key={index}>
+              <tr key={s.stockID}>
+            <td>{index + 1}</td>
                 <td>{s.stockID}</td>        
                 <td>{s.productID}</td>      
                 <td>{s.productName}</td> 
                 <td>{s.quantity}</td>
                 <td>{s.addedby}</td>
-                <td>
-                  <button className="edit-btn"onClick={() =>this.setState({ showEditForm: true, editItem: s })}>Edit</button>
-                  <button className="delete1-btn"onClick={() => this.deleteStock(s.stockID)}>Delete</button>
-                </td>
+                  <td>
+                    <Button color="warning" onClick={() => this.setState({ showEditForm: true, editItem: s })}style={{ marginRight:-25 }} startIcon={<EditIcon />}/>
+                    <Button color="danger" onClick={() => this.deleteStock(s.stockID)} startIcon={<DeleteIcon />}/>
+                 </td>
               </tr>
             ))}
           </tbody>
         </table>
   {/* Pagination */}
-<div style={{marginTop: "15px",display: "flex",justifyContent: "space-between",alignItems: "center"}}>
-  {/* Showing entries */}
-  <div> Showing {currentStocks.length} out of {filteredStock.length} entries</div>
-  {/* Pagination controls */}
-  <div style={{ display: "flex", alignItems: "center" }}>
-    {/* Previous button */}
-    <button onClick={() => this.setState({ currentPage: currentPage - 1 })}
-      disabled={currentPage === 1}className="delete2">Previous </button>
-    {/* Page numbers */}
-    {Array.from({ length: Math.ceil(filteredStock.length / itemsPerPage) },(_, i) => i + 1).map((pageNumber) => (
-      <button className="buttonStyle" key={pageNumber}onClick={() => this.setState({ currentPage: pageNumber })}
-        style={{fontWeight: pageNumber === currentPage ? "bold" : "normal",
-          backgroundColor: pageNumber === currentPage ? "#007bff" : "white",
-          color: pageNumber === currentPage ? "white" : "black",borderRadius: "50%",width: "30px",height: "30px",margin: "0 5px",
-        }}>{pageNumber}</button>
-    ))}
-    {/* Next button */}
-    <button onClick={() => this.setState({ currentPage: currentPage + 1 })}
-      disabled={currentPage === Math.ceil(filteredStock.length / itemsPerPage)}className="delete2">Next</button>
-    </div>
-   </div>;
+    <div style={{marginTop: "15px",display: "flex",justifyContent: "space-between",alignItems: "center"}}>
+          Showing {currentStocks.length} out of {filteredStock.length} entries
+        <Pagination count={totalPages} page={currentPage} onChange={this.handlePageChange}
+         color="secondary" sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}/>
+       </div>
+         
         {/* ADD STOCK FORM */}
         {showAddForm && (
           <div className="modal">
@@ -206,8 +251,10 @@ class Stock extends Component {
             </div>
           </div>
         )}
+        
       </div>
       </div>
+      
     );
   }
 }

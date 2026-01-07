@@ -1,0 +1,67 @@
+/* Full screen overlay */
+.centered-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* semi-transparent dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Alert box centered */
+.centered-alert-box {
+  background-color: #4caf50;
+  color: white;
+  padding: 25px 35px;
+  border-radius: 10px;
+  min-width: 300px;
+  max-width: 500px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 18px;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Types */
+.centered-alert-box.success { background-color: #f3f4f3; }
+.centered-alert-box.error { background-color: #f6f4f4; }
+.centered-alert-box.warning { background-color: #ff9800; }
+
+/* Icon */
+.centered-alert-box .icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+/* Message */
+.centered-alert-box .message {
+  flex: 1;
+  color: black;
+}
+
+/* Close button */
+.centered-alert-box .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: rgb(14, 1, 1);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.centered-alert-box .close-btn:hover { color: #ddd; }

@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import "../Css/StaffCreate.css";
+import CenteredAlert  from "./StylishAlertManager";
+import ConfirmModal from "./ConfirmModal";
 
 class StaffAdd extends Component {
-   state = {
+  constructor(props) {
+    super(props);
+   this.state = {
     staffname: "",
     email: "",
     mobileno: "",
@@ -15,8 +19,15 @@ class StaffAdd extends Component {
     address: "",
     error:"",
     success:"",
+    show: false,
+      message: "",
+      onConfirm: null,
+      onCancel: null,
     image: null
   };
+ this.alertRef = React.createRef();
+     this.confirmRef = React.createRef();
+}
 
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
@@ -40,29 +51,31 @@ class StaffAdd extends Component {
     formData.append("address", this.state.address);
     if (this.state.image) formData.append("image", this.state.image);
     try {
-      const res = await fetch("https://localhost:7234/api/staff", {
+      const res = await fetch("http://localhost:1514/api/staff", {
         method: "POST",
         body: formData
       });
       if (res.ok) {
         const data = await res.json();
-        alert("Staff added successfully! ID: " + data.staffid);
+         this.alertRef.current.showAlert("Staff added successfully! ID: " + data.staffid, "success");
         this.setState({ staffname: "",email: "",mobileno: "",password: "",gender: "",
-                     role: "",dob: "",joindate: "",blood: "",address: "", imagepath: null });
+                     role: "",dob: "",joindate: "",blood: "",address: "", imagepath: "" });
       } 
       else {
-        alert("Failed to save staff details");
+        this.alertRef.current.showAlert("Failed to save staff details");
       }
     } catch (error) 
     {console.error(error);}
   };
 
   render() {
-     const {  error } = this.state;
+     const {error } = this.state;
     return (
-         <div style={{ width: "87%", margin: "auto", marginTop: "40px",marginLeft:"140px" }}>
+         <div style={{ width: "85%", margin: "auto", marginLeft:"160px" }}>
         <div style={{ marginTop: 20, padding: 20, border: "4px solid #ccc", borderRadius: 10 }}>
         <form onSubmit={this.handleSubmit}>
+            <CenteredAlert ref={this.alertRef} />
+        <ConfirmModal ref={ this.confirmRef}/>
           <h2 className="title">Staff Creation</h2>
           {/* First row */}
           <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
@@ -76,8 +89,9 @@ class StaffAdd extends Component {
             </div>
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
               <label>Mobile No:</label>
-              <input type="number" name="mobileno" value={this.state.mobileno}onChange={this.handleChange} required />
-            </div>
+              <input type="text"className="input-field"value={this.state.mobileNo} maxLength={10}
+              onChange={(e) => {const onlyNums = e.target.value.replace(/\D/g, ""); this.setState({ mobileNo: onlyNums });}}/>
+           </div>
           </div>
 
           {/* Second row */}
@@ -143,9 +157,10 @@ class StaffAdd extends Component {
         </div>
 
           {/* Buttons */}
-          <div className="button-row">
-            <button className="btn primary" type="submit">Save</button>
-            <button className="btn danger" type="button" onClick={() => window.location.reload()}>Reset</button>
+          <div className="button-row"style={{ display: "flex",justifyContent: "flex-end" }}>
+            <button className="delete1" type="submit">Save</button>
+            <button className="edit-btn"  onClick={() => window.location.reload()}>Reset</button>
+             <button className="delete-btn"  onClick={() => window.history.back()}>Back</button>
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}
         </form>

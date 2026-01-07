@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import axios from "axios";
 import "../Css/Product.css";
+import CenteredAlert  from "./StylishAlertManager";
+import ConfirmModal from "./ConfirmModal";
+import Button from '@mui/material/Button';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Pagination from "@mui/material/Pagination";
 
 class Product extends Component {
   constructor(props) {
@@ -10,33 +16,37 @@ class Product extends Component {
       showAddForm: false, showEditForm: false,
       newProductID: "", newProductName: "", newProductPrice: "", newAddedBy: "",
       filterText: "", editItem: null,
-      currentPage: 1, itemsPerPage: 8,
+      currentPage: 1, itemsPerPage: 10,
+      show: false,
+      message: "",
+      onConfirm: null,
+      onCancel: null
     };
-    this.productApi = "https://localhost:7234/api/Sales/Product";
-    this.staffApi = "https://localhost:7234/api/staff/Role";
+    this.alertRef = React.createRef();
+    this.confirmRef = React.createRef();
   }
-
+open = (message, onConfirm, onCancel) => {
+    this.setState({ show: true, message, onConfirm, onCancel });
+  };
   componentDidMount() {
     this.loadStaffs();
     this.loadProducts();
   }
 
   loadProducts = () => {
-    axios .get(this.productApi)
-      .then((res) => {
-        const productsArray = Array.isArray(res.data.$values) ? res.data.$values : [];
-        this.setState({ products: productsArray });
+    axios.get("http://localhost:1514/api/Sales/Product")
+      .then(res => {
+        this.setState({ products: res.data });
       })
-      .catch((err) => console.error(err));
+      .catch(err => console.error(err));
   };
 
   loadStaffs = () => {
-    axios .get(this.staffApi)
-      .then((res) => {
-        const staffsArray = Array.isArray(res.data.$values) ? res.data.$values : [];
-        this.setState({ staffs: staffsArray });
+  axios.get("http://localhost:1514/api/staff/Role")
+       .then(res => {
+        this.setState({ staffs: res.data });
       })
-      .catch((err) => console.error(err));
+      .catch(err => console.error(err));
   };
 
   handleAddProduct = () => {
@@ -45,33 +55,60 @@ class Product extends Component {
       productPrice: this.state.newProductPrice,
       addedBy: this.state.newAddedBy,
     };
-    axios.post(this.productApi, data).then(() => {
-      alert("Product added successfully");
-      this.setState({
+    axios.post("http://localhost:1514/api/Sales/Product", data)
+    .then((response) => {
+      this.alertRef.current.showAlert(response.data.message, "success");
+         this.setState({
         showAddForm: false,
         newProductName: "",newProductPrice: "", newAddedBy: "",
-      });
+      })
       this.loadProducts();
-      });
+      })     
+      .catch((error) => {
+       this.alertRef.current.showAlert("Already this product is available", "error");
+    });  
+      this.setState({ showAddForm: false });
     };
+  
 
   handleEditProduct = () => {
     const id = this.state.editItem.productID;
-    axios.put(`${this.productApi}?id=${id}`, this.state.editItem).then(() => {
-      alert("Product updated successfully");
+    axios.put(`http://localhost:1514/api/Sales/Product?id=${id}`, this.state.editItem)
+    .then((response) => {
+    this.alertRef.current.showAlert(response.data.message, "success");
       this.setState({ showEditForm: false, editItem: null });
       this.loadProducts();
-    });
+    })
+    .catch(() => {
+          this.alertRef.current.showAlert("Failed to Update Product","error");
+        });
   };
 
   deleteProduct = (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
-    axios.delete(`${this.productApi}?id=${id}`).then(() => {
-      alert("Product deleted successfully");
+     this.confirmRef.current.open("Are you sure you want to delete this Product?",() => {
+    axios.delete(`http://localhost:1514/api/Sales/Product?id=${id}`)
+    .then((response) => {
+      this.alertRef.current.showAlert("Product Deleted Successfully", "success");
       this.loadProducts();
+    })
+     .catch(() => {
+          this.alertRef.current.showAlert("Failed to delete Product","error");
+        });
+  })
+     };
+handleConfirm = () => {
+    this.setState({ show: false }, () => {
+      if (this.state.onConfirm) this.state.onConfirm();
     });
   };
-
+handlePageChange = (event, value) => {
+  this.setState({ currentPage: value });
+};
+  handleCancel = () => {
+    this.setState({ show: false }, () => {
+      if (this.state.onCancel) this.state.onCancel();
+    });
+  };
   render() {
     const {products,staffs,showAddForm,showEditForm,editItem,filterText,currentPage,itemsPerPage} = this.state;
     // Filter products
@@ -84,20 +121,28 @@ class Product extends Component {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentProducts = filteredProduct.slice(indexOfFirstItem, indexOfLastItem);
-
+    const totalPages = Math.ceil(filteredProduct.length / itemsPerPage);
     return (
-      <div style={{ width: "87%", margin: "auto", marginTop: "40px", marginLeft: "140px" }}>
+      <div style={{ width: "65%",  marginTop: "40px", marginLeft: "300px" }}>
         <div style={{ marginTop: 20, padding: 20, border: "4px solid #ccc", borderRadius: 10 }}>
           <h2 className="title">Product Management</h2>
-          <div className="actions">
-            <input type="text" placeholder="Filter by Product Name or ID"
-              value={filterText}onChange={(e) => this.setState({ filterText: e.target.value, currentPage: 1 })}/>
-            <button className="delete2" onClick={() => this.setState({ showAddForm: true })}>AddProduct</button>
-          </div>
+          
+           <CenteredAlert ref={this.alertRef} />
+            <ConfirmModal ref={ this.confirmRef}/>
+              <table >
+         <tr>
+          <td align="right" style={{ whiteSpace: "nowrap" }}>
+           <input type="text" placeholder="Filter by Product Name or ID" value={filterText}
+            onChange={(e) =>this.setState({ filterText: e.target.value, currentPage: 1 })}style={{width:"20px", marginRight: "222px" }}/>
+            <Button variant="contained"size="small"color="secondary" onClick={() => this.setState({ showAddForm: true })}>Add Product</Button>
+          </td>
+         </tr>
+       </table>    
           {/* Product Table */}
           <table className="staff-table">
             <thead>
               <tr style={{ textAlign: "center" }}>
+                <th>S.No</th>
                 <th>Product ID</th>
                 <th>Product Name</th>
                 <th>Price (₹)</th>
@@ -107,31 +152,28 @@ class Product extends Component {
             </thead>
             <tbody style={{ textAlign: "center" }}>
               {currentProducts.map((s, index) => (
-                <tr key={index}>
+                <tr key={s.productID}>
+            <td>{index + 1}</td>
                   <td>{s.productID}</td>
                   <td>{s.productName}</td>
                   <td>{s.productPrice}</td>
                   <td>{s.addedby}</td>
                   <td>
-                    <button className="edit-btn"onClick={() => this.setState({ showEditForm: true, editItem: s })}>Edit</button>
-                    <button className="delete1" onClick={() => this.deleteProduct(s.productID)}>Delete</button>
-                  </td>
+                    <Button color="warning" onClick={() => this.setState({ showEditForm: true, editItem: s })}style={{ marginRight:-25 }} startIcon={<EditIcon />}/>
+                    <Button color="danger" onClick={() => this.deleteProduct(s.productID)} startIcon={<DeleteIcon />}/>
+                 </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {/* Pagination */}
-         <div style={{marginTop: "15px",display: "flex",justifyContent: "space-between",alignItems: "center"}}>
-            <div style={{ display: "flex", alignItems: "left" }}> Showing {currentProducts.length} out of {filteredProduct.length} entries</div>
-            <div style={{ textAlign: "center" }}>
-            <button onClick={() => this.setState({ currentPage: currentPage - 1 })}
-              disabled={currentPage === 1}>Previous</button>
-            <span>Page {currentPage} of {Math.ceil(filteredProduct.length / itemsPerPage)}</span>
-            <button onClick={() => this.setState({ currentPage: currentPage + 1 })}
-              disabled={indexOfLastItem >= filteredProduct.length}>Next</button>
-          </div>
-          </div>
+           <div style={{marginTop: "15px",display: "flex",justifyContent: "space-between",alignItems: "center"}}>
+          Showing {currentProducts.length} out of {filteredProduct.length} entries
+        <Pagination count={totalPages} page={currentPage} onChange={this.handlePageChange}
+         color="secondary" sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}/>
+       </div>
+         
           {/* Add Product Modal */}
           {showAddForm && (
             <div className="modal">
